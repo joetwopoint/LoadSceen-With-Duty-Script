@@ -2,6 +2,7 @@ Put Both In Your Resources Folder add the following to your server cfg
 
 
 start PoliceEMSActivity
+
 start twopoint-loadingscreeen
 
 
