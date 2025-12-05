@@ -2,6 +2,21 @@
 
 // ===================== CONFIG =========================
 
+// ===== STATS CONFIG =====
+
+// Discord Guild ID (enable the Discord "Server Widget" in your Discord server settings).
+// This drives the "people in the email system" count.
+var DISCORD_GUILD_ID = "YOUR_GUILD_ID_HERE"; // e.g. "123456789012345678"
+
+// FiveM server HTTP endpoint (for players.json & info.json).
+// This drives the "people in the state" count.
+var FIVEM_SERVER_ENDPOINT = "http://YOUR.SERVER.IP:30120";
+
+// How often to refresh Discord/server stats (in milliseconds)
+var STATS_REFRESH_MS = 30000;
+
+
+
 // Staff toggle: set to true to show staff list column.
 const STAFF_ENABLED = false;
 
@@ -193,6 +208,88 @@ function setupVolumeKeys() {
   });
 }
 
+
+
+// ===================== STATS HELPERS =========================
+
+function updateDiscordCount() {
+  if (!DISCORD_GUILD_ID) return;
+  var el = document.getElementById("emailCount");
+  if (!el) return;
+
+  fetch("https://discord.com/api/guilds/" + DISCORD_GUILD_ID + "/widget.json")
+    .then(function (res) {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    })
+    .then(function (data) {
+      var count = null;
+
+      if (data && typeof data.presence_count === "number") {
+        count = data.presence_count;
+      } else if (data && Array.isArray(data.members)) {
+        count = data.members.length;
+      }
+
+      if (count != null) {
+        el.textContent = count;
+      } else {
+        el.textContent = "N/A";
+      }
+    })
+    .catch(function () {
+      el.textContent = "--";
+    });
+}
+
+function updatePlayerCount() {
+  if (!FIVEM_SERVER_ENDPOINT) return;
+  var el = document.getElementById("stateCount");
+  if (!el) return;
+
+  var base = FIVEM_SERVER_ENDPOINT.replace(/\/+$/, "");
+
+  fetch(base + "/players.json")
+    .then(function (res) {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    })
+    .then(function (players) {
+      var current = Array.isArray(players) ? players.length : 0;
+
+      return fetch(base + "/info.json")
+        .then(function (res) {
+          return res.ok ? res.json() : null;
+        })
+        .then(function (info) {
+          var max =
+            info && info.vars && info.vars.sv_maxClients
+              ? info.vars.sv_maxClients
+              : null;
+
+          if (max) {
+            el.textContent = current + " / " + max;
+          } else {
+            el.textContent = current.toString();
+          }
+        })
+        .catch(function () {
+          el.textContent = current.toString();
+        });
+    })
+    .catch(function () {
+      el.textContent = "--";
+    });
+}
+
+function startStatsLoop() {
+  updateDiscordCount();
+  updatePlayerCount();
+
+  setInterval(updateDiscordCount, STATS_REFRESH_MS);
+  setInterval(updatePlayerCount, STATS_REFRESH_MS);
+}
+
 // ===================== SHORTS LOOP =========================
 function startShortLoop() {
   loadRandomShort();
@@ -290,8 +387,11 @@ document.addEventListener("DOMContentLoaded", () => {
   startShortLoop();
   startTipRotation();
   renderStaff();
+  startStatsLoop();
 });
 
+
+// ===================== DUTY STATS (FROM SERVER) =========================
 
 function renderDutyDepartments(departments) {
   var listEl = document.getElementById("dutyList");
@@ -340,3 +440,4 @@ window.addEventListener("message", function (event) {
     handleDutyStatsMessage(data);
   }
 });
+

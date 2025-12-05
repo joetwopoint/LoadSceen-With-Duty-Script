@@ -1,72 +1,93 @@
-# twopoint-loadingscreen
+# twopoint-loadingscreen  
+Customizable FiveM Loading Screen
 
-**REQUIRED TO WORK:**
-- You must have at least **one valid TikTok or YouTube URL** configured in `html/script.js`.
-- The resource folder must be named **`twopoint-loadingscreen`** and referenced with `ensure twopoint-loadingscreen` in your `server.cfg`.
-- `html/logo.png` must exist (replace this file with your own logo image).
+A clean, modern FiveM loading screen that you can brand for **any server**. Features:
 
----
+- Plays **random TikTok / YouTube Shorts** clips from your own links  
+- Shows a **phone-style frame** with the shorts inside  
+- Has a big **background logo watermark** (customizable)  
+- Optional **staff list** with round character pictures  
+- Shows **server tips** while the player loads  
 
-## What this loading screen does
-
-- Shows a **phone-style frame** on the right with a video playing inside.
-- Plays **random TikTok and/or YouTube Shorts** links you configure.
-- Rotates a list of **server tips** on the left.
-- Optionally shows a **staff list** with round character images (if you enable it).
-
-Everything is controlled from plain HTML/CSS/JS files in the `html` folder.
+This is a pure **loadscreen resource** using FiveM’s `loadscreen` directive – no in-game UI.
 
 ---
 
 ## 1. Installation
 
-1. Drop the folder into your server resources:
+1. Drop the folder into your resources:
 
    ```text
    resources/[loadscreen]/twopoint-loadingscreen
    ```
 
-2. In your `server.cfg`:
+2. In your `server.cfg`, add:
 
    ```cfg
    ensure twopoint-loadingscreen
    ```
 
-3. Replace `html/logo.png` with your own server logo (keep the same name and location).
+3. Restart the server (or `refresh` + `ensure twopoint-loadingscreen` from console).
 
 Players will see this while connecting to your server.
 
 ---
 
-## 2. Main files
+## 2. File Structure
 
-- `fxmanifest.lua`  
-  - Tells FiveM this is a loadscreen resource and points to `html/index.html`.
+```text
+twopoint-loadingscreen/
+├─ fxmanifest.lua
+├─ README.md
+└─ html/
+   ├─ index.html        # Main loadscreen layout
+   ├─ style.css         # Styling (backgrounds, phone frame, staff layout)
+   ├─ script.js         # Logic: random shorts, tips, staff, config
+   ├─ logo.png          # Main server logo (center watermark + left panel)
+   └─ staff/
+      ├─ README.txt     # Instructions for staff avatars
+      └─ (your staff images go here)
+```
 
-- `html/index.html`  
-  - The main layout (left panel text, right panel phone frame, stats/tips blocks).
+### Changing the main logo
 
-- `html/style.css`  
-  - All styling: background, phone frame look, text alignment, etc.
+- Replace `html/logo.png` with your **server logo** (same filename).
 
-- `html/script.js`  
-  - All logic and **config options**: shorts list, staff list, timing, etc.
-
-- `html/staff/`  
-  - Optional staff avatar images (round portraits) if you enable the staff list.
+No dev/brand corner logo is used in this version.
 
 ---
 
-## 3. Things you can customize
+## 3. Basic Config (script.js)
 
-Open `html/script.js` – at the top you’ll see the main config block.
+All configuration is done in:
 
-### 3.1 Staff list (middle column)
+```text
+html/script.js
+```
+
+Open that file in a text editor (VS Code, Notepad++, etc.).
+
+### 3.1. Staff Panel Toggle
+
+At the top of `script.js`:
 
 ```js
+// Staff toggle: set to true to show staff list column.
 const STAFF_ENABLED = false;
+```
 
+- `false` = no staff column (2-column layout: info + phone)
+- `true`  = show staff column in the middle (3-column layout)
+
+---
+
+### 3.2. Staff Members List
+
+Right under `STAFF_ENABLED`:
+
+```js
 const staffMembers = [
+  // Example:
   // {
   //   name: "Jane Doe",
   //   role: "Community Manager",
@@ -76,110 +97,181 @@ const staffMembers = [
 ];
 ```
 
-- Set `STAFF_ENABLED` to `true` to show the staff column between the left panel and the phone.
-- Add entries to `staffMembers`:
-  - `name`: staff name shown in the card
-  - `role`: small role/title line under the name
-  - `description`: short text (optional)
-  - `image`: path to an image in `html/staff/` (for example `staff/jane.png`)
-
-Place your character portraits in `html/staff/` and use those file names in `image`.
-
----
-
-### 3.2 TikTok / YouTube shorts
+To use it, set `STAFF_ENABLED = true` and fill it in, for example:
 
 ```js
-// "tt"   -> TikTok only
-// "yt"   -> YouTube only
-// "both" -> TikTok + YouTube
-const SHORT_SOURCE = "tt";
-
-// TikTok links
-const tikTokUrls = [
-  "https://www.tiktok.com/@sunvalleyroleplay2/video/...",
-  // add/remove your own TikTok URLs here
-];
-
-// YouTube links
-const youTubeUrls = [
-  // "https://www.youtube.com/shorts/VIDEOID",
-  // "https://youtu.be/VIDEOID",
-  // "https://www.youtube.com/watch?v=VIDEOID"
+const staffMembers = [
+  {
+    name: "Alex",
+    role: "Owner",
+    description: "Main contact for server issues.",
+    image: "staff/alex.png"
+  },
+  {
+    name: "Sam",
+    role: "Staff Lead",
+    description: "Handles staff apps & reports.",
+    image: "staff/sam.jpg"
+  }
 ];
 ```
 
-- `SHORT_SOURCE` controls **what type of clips** are used:
-  - `"tt"` → only TikTok links in `tikTokUrls`
-  - `"yt"` → only YouTube links in `youTubeUrls`
-  - `"both"` → mix of both lists
-- Replace the sample TikTok URLs with your own account’s videos if you want.
-- Add your own YouTube Shorts or videos to `youTubeUrls` if you want to use YouTube.
+#### Staff Images
 
-> **Important:** Make sure there is **at least one link** in the active list or the frame will stay blank.
+- Put your staff character images in:
+
+  ```text
+  html/staff/
+  ```
+
+- Example files:
+
+  ```text
+  html/staff/alex.png
+  html/staff/sam.jpg
+  ```
+
+- In `script.js`, the `image` field should be the **relative path** from `html/`, e.g.:
+
+  ```js
+  image: "staff/alex.png"
+  ```
+
+Images show as **small round avatars** with a gold border next to the staff name/role.
+
+If `STAFF_ENABLED` is `false` or `staffMembers` is empty, the middle column is hidden and the layout automatically falls back to two columns.
 
 ---
 
-### 3.3 Clip duration (how often it switches)
+### 3.3. Short Source Mode (TikTok / YouTube / Both)
+
+Config setting:
+
+```js
+// Short source mode:
+//   "tt"   -> TikTok only
+//   "yt"   -> YouTube only
+//   "both" -> TikTok + YouTube
+const SHORT_SOURCE = "both";
+```
+
+Choose one:
+
+```js
+const SHORT_SOURCE = "tt";   // only TikTok links
+const SHORT_SOURCE = "yt";   // only YouTube links
+const SHORT_SOURCE = "both"; // mix of TikTok + YouTube
+```
+
+---
+
+### 3.4. TikTok & YouTube URLs
+
+#### TikTok
+
+Fill this with any TikTok video/photo URLs you want:
+
+```js
+const tikTokUrls = [
+  "https://www.tiktok.com/@yourserver/video/1234567890123456789",
+  // add more TikTok links here
+];
+```
+
+#### YouTube
+
+Add your YouTube Shorts / videos here:
+
+```js
+const youTubeUrls = [
+  "https://www.youtube.com/shorts/VIDEOID",
+  "https://youtu.be/VIDEOID",
+  "https://www.youtube.com/watch?v=VIDEOID"
+];
+```
+
+Then set `SHORT_SOURCE` to `"yt"` or `"both"` depending on how you want to mix them.
+
+---
+
+### 3.5. Clip Duration
+
+Time before switching to the next random clip:
 
 ```js
 const CLIP_DURATION_MS = 30000; // 30 seconds
 ```
 
-- This controls **how long** each clip shows before the script picks another one.
-- Set to your preferred value (in milliseconds), e.g.:
-  - `20000` = 20 seconds
-  - `45000` = 45 seconds
+Increase or decrease (value is in milliseconds).
 
 ---
 
-### 3.4 Server tips on the left
+### 3.6. Volume Behavior (YouTube only)
+
+At the top of `script.js`:
 
 ```js
-const tips = [
-  "Be respectful to other players. RP > FRP.",
-  "Read the rules in Discord before you hit the streets.",
-  "Use push-to-talk and keep comms clear during scenes.",
-  "Record your POV – it helps with reports and clips.",
-  "Have fun, but remember: actions have consequences."
-];
+// NOTE ABOUT VOLUME:
+// Up/Down arrow keys only affect the volume/mute state of YouTube embeds.
+// TikTok iframes do not expose volume to us, so arrows will NOT change TikTok audio.
+// Clips start at 20% logical volume (YouTube: unmuted).
 ```
 
-- Edit, remove, or add as many tip strings as you like.
-- The script will rotate through them automatically every few seconds.
-
----
-
-### 3.5 Volume behavior (YouTube only)
+The actual volume variable:
 
 ```js
 let volumePercent = 20;
 ```
 
-- This is a **logical volume** used only for YouTube embeds:
-  - If `volumePercent` is `0`, the YouTube embed is muted.
-  - If greater than `0`, the embed is unmuted.
-- TikTok does **not** support volume control from this script; audio is controlled by the player and browser.
+- Clips **start at 20%** logical volume.
+- On **YouTube**:
+  - `0%` → embed is loaded **muted**
+  - `> 0%` → embed is loaded **unmuted**
+- On **TikTok**:
+  - Volume cannot be controlled via script; arrow keys do not change TikTok audio.
+  - Players may still need to click the video to unmute, depending on browser/FiveM.
 
-You can also remove any on-screen text about keyboard volume controls if you don’t want to mention them.
+The UI on-screen just shows:
 
----
+```html
+<div class="controls-hint">
+  <span class="volume-readout">Volume: <span id="volumeValue">20%</span></span>
+</div>
+```
 
-## 4. Changing visuals (phone frame, colors, fonts)
-
-All visual styling is in `html/style.css`. Some useful sections:
-
-- `.phone-frame`  
-  - Phone border color, thickness, rounded corners, drop shadow.
-
-- `.video-title`, `.controls-hint`, `.video-note`  
-  - Text above and below the phone; aligned to match the phone width.
-
-- `.background`, `.overlay`, `.background-logo`  
-  - Background gradients, dark overlay, and big transparent logo behind everything.
-
-Feel free to tweak colors, fonts, shadows, and layout here to match your server theme.
+There is **no mention of keybinds** on the screen; arrow keys are a hidden “power user” feature for YouTube only.
 
 ---
 
-If you ever break something, you can restore the original `script.js`, `style.css`, or `index.html` from a fresh copy of this resource and re-apply your tweaks step by step.
+## 4. Visual Features
+
+- **Background**
+  - Soft radial gradient background
+  - Dark overlay
+  - Large, faint **background watermark logo** (from `logo.png`)
+
+- **Left Column**
+  - Main logo + server name text
+  - “Connecting...” status
+  - Animated progress bar
+  - Short description about loading/shorts
+  - Rotating **server tips**
+
+- **Middle Column (optional)**
+  - “Staff Team” title
+  - List of staff cards with:
+    - Round avatar (character image)
+    - Name, role, small description  
+
+- **Right Column**
+  - “Random shorts from our socials” title
+  - Phone-style frame:
+    - Curved device border, top speaker and camera dot
+    - Shorts iframe inside as the screen
+  - Volume readout + note about clips possibly starting muted / needing click
+
+Everything is skinned via CSS, so you can tweak colors, radiuses, shadows, etc., in `style.css`.
+
+---
+
+Drag-and-drop ready for FiveM. Customize and enjoy ✌️

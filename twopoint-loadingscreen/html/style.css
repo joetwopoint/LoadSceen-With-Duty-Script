@@ -419,6 +419,7 @@ body.no-staff-layout .staff-panel {
 }
 
 
+/* Stats box on the left */
 .stats-box {
   margin-top: 1.5rem;
   padding: 0.75rem 1rem;
@@ -482,4 +483,50 @@ body.no-staff-layout .staff-panel {
 .duty-empty {
   font-size: 0.8rem;
   opacity: 0.75;
+}
+
+
+/* Force right column alignment */
+.right-panel {
+  flex: 1;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Title, phone wrapper, and text share same width */
+.video-title,
+.video-wrapper,
+.controls-hint,
+.video-note {
+  width: 100%;
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+/* Center phone wrapper */
+.video-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Phone frame width matches column */
+.phone-frame {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 9 / 18;
+  border-radius: 36px;
+  padding: 10px;
+  background: radial-gradient(circle at top, #111827 0%, #020617 85%);
+  border: 2px solid #f97316;
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
